@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 import com.cifra.comum.ProblemaDeNegocio;
 import com.cifra.identidade.dominio.Conta;
 import com.cifra.identidade.repositorio.ContaRepository;
-import com.cifra.razao.dominio.Transacao;
 import com.cifra.razao.dominio.TipoTransacao;
+import com.cifra.razao.dominio.Transacao;
 import com.cifra.razao.repositorio.TransacaoRepository;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -49,8 +49,8 @@ public class Razao {
 		BigDecimal montante = normalizar(valor);
 		exigirContaMovimentavel(contaId);
 
-		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(TipoTransacao.DEPOSITO,
-				this.liquidacao.id(), contaId, montante, descricao, idempotencyKey));
+		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(Movimento.entrada(TipoTransacao.DEPOSITO,
+				this.liquidacao.id(), contaId, montante, descricao, idempotencyKey)));
 	}
 
 	/** Dinheiro sai: debita o cliente, credita a liquidacao. */
@@ -58,13 +58,30 @@ public class Razao {
 		BigDecimal montante = normalizar(valor);
 		exigirContaMovimentavel(contaId);
 
-		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(TipoTransacao.SAQUE,
-				contaId, this.liquidacao.id(), montante, descricao, idempotencyKey));
+		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(Movimento.saida(TipoTransacao.SAQUE,
+				contaId, this.liquidacao.id(), montante, descricao, idempotencyKey)));
 	}
 
 	/** Dinheiro muda de dono: o total do sistema nao se altera. */
 	public Transacao transferir(Long origemId, Long destinoId, BigDecimal valor, String idempotencyKey,
 			String descricao) {
+		return moverEntreClientes(TipoTransacao.TRANSFERENCIA, origemId, destinoId, valor, idempotencyKey,
+				descricao);
+	}
+
+	/** Mesma mecanica da transferencia; o que muda e como o destino foi endereçado. */
+	public Transacao pagarPix(Long origemId, Long destinoId, BigDecimal valor, String idempotencyKey,
+			String descricao) {
+		return moverEntreClientes(TipoTransacao.PIX, origemId, destinoId, valor, idempotencyKey, descricao);
+	}
+
+	/** Espelha uma transacao liquidada. Nao apaga nada: escreve o contrario. */
+	public Transacao estornar(Long transacaoId, String idempotencyKey) {
+		return comIdempotencia(idempotencyKey, () -> this.motor.estornar(transacaoId, idempotencyKey));
+	}
+
+	private Transacao moverEntreClientes(TipoTransacao tipo, Long origemId, Long destinoId, BigDecimal valor,
+			String idempotencyKey, String descricao) {
 		BigDecimal montante = normalizar(valor);
 
 		if (origemId.equals(destinoId)) {
@@ -74,8 +91,8 @@ public class Razao {
 		exigirContaMovimentavel(origemId);
 		exigirContaMovimentavel(destinoId);
 
-		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(TipoTransacao.TRANSFERENCIA,
-				origemId, destinoId, montante, descricao, idempotencyKey));
+		return comIdempotencia(idempotencyKey, () -> this.motor.lancar(
+				Movimento.saida(tipo, origemId, destinoId, montante, descricao, idempotencyKey)));
 	}
 
 	/**

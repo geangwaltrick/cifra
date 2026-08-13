@@ -23,4 +23,8 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
 
 	boolean existsByEstornoDeId(Long transacaoId);
 
+	/** O estorno precisa dos lancamentos originais para espelha-los. */
+	@EntityGraph(attributePaths = "lancamentos")
+	Optional<Transacao> findWithLancamentosById(Long id);
+
 }

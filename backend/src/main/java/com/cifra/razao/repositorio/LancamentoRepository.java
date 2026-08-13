@@ -1,6 +1,7 @@
 package com.cifra.razao.repositorio;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import com.cifra.razao.dominio.Lancamento;
@@ -13,6 +14,8 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 
 	List<Lancamento> findByContaIdOrderByCriadoEmDesc(Long contaId);
 
+	boolean existsByTransacaoIdAndContaId(Long transacaoId, Long contaId);
+
 	/** Saldo verdadeiro da conta: a soma do razao, sem passar pela projecao. */
 	@Query("select coalesce(sum(l.valor), 0) from Lancamento l where l.contaId = :conta")
 	BigDecimal somarPorConta(@Param("conta") Long conta);
@@ -20,6 +23,25 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 	/** Soma de todo o razao. Tem que ser zero, sempre. */
 	@Query("select coalesce(sum(l.valor), 0) from Lancamento l")
 	BigDecimal somarTudo();
+
+	/**
+	 * Quanto ja saiu desta conta por vontade do titular desde {@code desde}.
+	 *
+	 * <p>So conta debito de saque, transferencia e PIX. Estorno tambem debita,
+	 * mas e reversao de algo, nao gasto novo -- nao pode consumir limite.
+	 */
+	@Query("""
+			select coalesce(sum(-l.valor), 0)
+			  from Lancamento l
+			  join l.transacao t
+			 where l.contaId = :conta
+			   and l.valor < 0
+			   and t.tipo in (com.cifra.razao.dominio.TipoTransacao.SAQUE,
+			                  com.cifra.razao.dominio.TipoTransacao.TRANSFERENCIA,
+			                  com.cifra.razao.dominio.TipoTransacao.PIX)
+			   and l.criadoEm >= :desde
+			""")
+	BigDecimal somarSaidasDesde(@Param("conta") Long conta, @Param("desde") Instant desde);
 
 	/**
 	 * Contas cuja projecao de saldo divergiu do razao. Zero linhas e o resultado

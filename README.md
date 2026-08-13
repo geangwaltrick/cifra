@@ -89,13 +89,14 @@ As duas suítes são separadas de propósito:
 | Comando         | Roda            | Precisa de Docker |
 |-----------------|-----------------|-------------------|
 | `./mvnw test`   | 22 testes de unidade | não          |
-| `./mvnw verify` | 22 unidade + 34 integração | sim    |
+| `./mvnw verify` | 22 unidade + 53 integração | sim    |
 
-Os três que sustentam a tese do projeto:
+Os quatro que sustentam a tese do projeto:
 
 | Cenário | O que prova |
 |---|---|
 | 50 saques paralelos sobre R$ 100 | exatamente 10 passam; saldo fecha em zero |
+| 50 saídas paralelas sobre teto de R$ 5.000 | exatamente 25 passam; limite não fura |
 | 50 transferências cruzadas A↔B | nenhuma falha por deadlock; total preservado |
 | 50 depósitos com a mesma chave | uma transação só; todas devolvem o mesmo id |
 
@@ -115,6 +116,18 @@ versão do `docker-compose.yml`. Testar contra H2 provaria a coisa errada.
 | POST   | `/api/v1/depositos`                 | sim         | Aceita `Idempotency-Key`                 |
 | POST   | `/api/v1/saques`                    | sim         | Aceita `Idempotency-Key`                 |
 | POST   | `/api/v1/transferencias`            | sim         | Por agência + número; `Idempotency-Key`  |
+| POST   | `/api/v1/pix/chaves`                | sim         | CPF, e-mail, telefone ou aleatória        |
+| GET    | `/api/v1/pix/chaves`                | sim         | Chaves da conta                          |
+| DELETE | `/api/v1/pix/chaves/{id}`           | sim         | Remove uma chave                         |
+| POST   | `/api/v1/pix/transferencias`        | sim         | Pagamento por chave                      |
+| GET    | `/api/v1/contas/me/extrato`         | sim         | Paginado; filtros `de`, `ate`, `tipo`    |
+| GET    | `/api/v1/contas/me/limite`          | sim         | Teto, gasto de hoje e disponível         |
+| PUT    | `/api/v1/contas/me/limite`          | sim         | Ajusta o teto diário                     |
+| POST   | `/api/v1/transacoes/{id}/estorno`   | sim         | Transação simétrica                      |
+| POST   | `/api/v1/seguranca/senha-transacional` | sim      | Define a senha de movimentação           |
+
+Saídas de dinheiro aceitam o cabeçalho `X-Senha-Transacional`, exigido a partir
+do momento em que o titular define uma.
 
 Erros seguem RFC 7807. O campo `type` é estável e é nele que o front decide o
 comportamento — nunca no texto da mensagem:
@@ -175,6 +188,41 @@ se forma — o deadlock é eliminado por construção, não tratado depois.
 O banco ainda tem a última palavra: `check (permite_negativo or saldo >= 0)`. Se
 algum caminho de código escapar da validação, o Postgres recusa.
 
+### O limite diário é checado depois do lock
+
+Parece detalhe de ordenação e não é. Se a soma do que já saiu hoje fosse lida
+antes do `SELECT ... FOR UPDATE`, duas transferências simultâneas de R$ 3.000
+sobre um teto de R$ 5.000 leriam ambas "nada gasto hoje", ambas passariam, e o
+dia fecharia em R$ 6.000. Com o lock já em mãos, a segunda só lê depois que a
+primeira gravou. Há um teste que dispara 50 saídas ao mesmo tempo e exige que
+exatamente 25 passem.
+
+### Estorno é lançamento novo, nunca `DELETE`
+
+Estornar escreve lançamentos de sinal contrário e marca a original como
+`ESTORNADA`. A transação original continua no razão, o histórico permanece
+auditável e a soma segue zero. Um estorno que deixaria a conta negativa — porque
+o destinatário já gastou o que recebeu — é recusado: forçá-lo seria inventar
+dinheiro.
+
+### Extrato com saldo corrente
+
+A window function roda sobre o histórico **inteiro** da conta, na subconsulta
+interna; os filtros de período e tipo entram só do lado de fora. Invertida a
+ordem, o saldo corrente do primeiro dia do recorte começaria do zero em vez de
+partir do que a conta já tinha — e o extrato mostraria números que nunca
+existiram. Filtrar por `tipo=SAQUE` num histórico de R$ 1.000 menos R$ 250
+devolve `saldoApos: 750.00`, não `-250.00`.
+
+### Duas senhas, dois riscos diferentes
+
+A senha de movimentação é separada da de acesso e opcional até o titular
+definir. O cenário que ela cobre é concreto: token de acesso vazado não basta
+para esvaziar a conta. Ler saldo e extrato continua só com o token; mover
+dinheiro exige algo que o atacante não capturou junto. Trocá-la exige provar a
+senha de acesso — senão o token vazado bastaria para definir a segunda senha e
+contornar exatamente a proteção que ela dá.
+
 ### Reconciliação
 
 Um job pergunta a cada 10 minutos, e o resultado esperado é sempre nada:
@@ -204,6 +252,6 @@ cifra/
 - [x] **00 — Fundação:** wrapper, Flyway, Testcontainers, CI
 - [x] **01 — Identidade:** cadastro com validação de CPF, JWT, abertura de conta
 - [x] **02 — Razão:** lançamentos, idempotência, lock ordenado, reconciliação
-- [ ] **03 — Produto:** chaves PIX, extrato, limites, estorno, auditoria
+- [x] **03 — Produto:** chaves PIX, extrato, limites, estorno, auditoria
 - [ ] **04 — Front:** React + Vite + TypeScript
 - [ ] **05 — Publicação:** deploy, conta demo com reset diário

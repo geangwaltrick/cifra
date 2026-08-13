@@ -24,10 +24,13 @@ import com.cifra.identidade.repositorio.UsuarioRepository;
 import com.cifra.razao.aplicacao.ContaDeLiquidacao;
 import com.cifra.razao.aplicacao.Razao;
 import com.cifra.razao.aplicacao.Reconciliacao;
+import com.cifra.razao.dominio.Limite;
 import com.cifra.razao.dominio.Saldo;
 import com.cifra.razao.dominio.StatusTransacao;
+import com.cifra.razao.dominio.TipoTransacao;
 import com.cifra.razao.dominio.Transacao;
 import com.cifra.razao.repositorio.LancamentoRepository;
+import com.cifra.razao.repositorio.LimiteRepository;
 import com.cifra.razao.repositorio.SaldoRepository;
 import com.cifra.razao.repositorio.TransacaoRepository;
 
@@ -80,6 +83,9 @@ class RazaoIT {
 
 	@Autowired
 	private GeradorDeNumeroDeConta gerador;
+
+	@Autowired
+	private LimiteRepository limites;
 
 	// --- invariante ---------------------------------------------------------
 
@@ -263,6 +269,130 @@ class RazaoIT {
 			.hasMessageContaining("nao aceita movimentacao direta");
 	}
 
+	// --- limite diario ------------------------------------------------------
+
+	@Test
+	@DisplayName("saida acima do teto diario e recusada")
+	void limite_diario_barra_saida() {
+		Long conta = novaConta(reais("300.00"));
+		this.razao.depositar(conta, reais("1000.00"), chave(), "carga");
+
+		this.razao.sacar(conta, reais("250.00"), chave(), "dentro do limite");
+
+		assertThatThrownBy(() -> this.razao.sacar(conta, reais("60.00"), chave(), "estoura o limite"))
+			.hasMessageContaining("Limite diario excedido");
+
+		assertThat(saldoDe(conta)).isEqualByComparingTo("750.00");
+	}
+
+	@Test
+	@DisplayName("deposito nao consome limite: limite e de saida")
+	void deposito_nao_consome_limite() {
+		Long conta = novaConta(reais("100.00"));
+
+		this.razao.depositar(conta, reais("10000.00"), chave(), "entrada grande");
+
+		assertThat(saldoDe(conta)).isEqualByComparingTo("10000.00");
+	}
+
+	@Test
+	@DisplayName("saidas simultaneas nao furam o limite diario")
+	void limite_nao_e_furado_por_concorrencia() {
+		// Saldo folgado de proposito: o que precisa segurar aqui e o limite,
+		// nao o saldo. Se o teste tambem esbarrasse em saldo, nao provaria nada.
+		Long conta = novaConta(reais("5000.00"));
+		this.razao.depositar(conta, reais("100000.00"), chave(), "carga");
+
+		AtomicInteger aceitas = new AtomicInteger();
+
+		emParalelo(CONCORRENTES, () -> {
+			try {
+				this.razao.sacar(conta, reais("200.00"), null, "saque concorrente");
+				aceitas.incrementAndGet();
+			}
+			catch (RuntimeException ex) {
+				// limite estourado: esperado na maioria das tentativas
+			}
+			return null;
+		});
+
+		// 5000 / 200 = 25, e nem uma a mais.
+		assertThat(aceitas.get()).as("saidas aceitas dentro do limite").isEqualTo(25);
+		assertThat(saldoDe(conta)).isEqualByComparingTo("95000.00");
+	}
+
+	// --- estorno ------------------------------------------------------------
+
+	@Test
+	@DisplayName("estorno espelha a transacao e mantem o razao em zero")
+	void estorno_espelha() {
+		Long origem = novaConta();
+		Long destino = novaConta();
+		this.razao.depositar(origem, reais("500.00"), chave(), "carga");
+
+		Transacao original = this.razao.transferir(origem, destino, reais("200.00"), chave(), "pagamento");
+		Transacao estorno = this.razao.estornar(original.getId(), chave());
+
+		assertThat(estorno.getTipo()).isEqualTo(TipoTransacao.ESTORNO);
+		assertThat(estorno.somaDosLancamentos()).isEqualByComparingTo("0.00");
+		assertThat(estorno.getEstornoDe().getId()).isEqualTo(original.getId());
+
+		// O dinheiro voltou...
+		assertThat(saldoDe(origem)).isEqualByComparingTo("500.00");
+		assertThat(saldoDe(destino)).isEqualByComparingTo("0.00");
+
+		// ...sem apagar nada: a transacao original continua no razao.
+		assertThat(this.transacoes.findById(original.getId()).orElseThrow().getStatus())
+			.isEqualTo(StatusTransacao.ESTORNADA);
+		assertThat(this.lancamentos.findByContaIdOrderByCriadoEmDesc(destino)).hasSize(2);
+		assertThat(this.lancamentos.somarTudo()).isEqualByComparingTo("0.00");
+	}
+
+	@Test
+	@DisplayName("estornar duas vezes a mesma transacao e recusado")
+	void estorno_duplo() {
+		Long origem = novaConta();
+		Long destino = novaConta();
+		this.razao.depositar(origem, reais("100.00"), chave(), "carga");
+		Transacao original = this.razao.transferir(origem, destino, reais("40.00"), chave(), "pagamento");
+
+		this.razao.estornar(original.getId(), chave());
+
+		assertThatThrownBy(() -> this.razao.estornar(original.getId(), chave()))
+			.hasMessageContaining("ja foi estornada");
+	}
+
+	@Test
+	@DisplayName("estorno que deixaria a conta negativa e recusado")
+	void estorno_sem_saldo() {
+		Long origem = novaConta();
+		Long destino = novaConta();
+		this.razao.depositar(origem, reais("100.00"), chave(), "carga");
+		Transacao pagamento = this.razao.transferir(origem, destino, reais("100.00"), chave(), "pagamento");
+
+		// O destinatario gastou o que recebeu; nao ha o que devolver.
+		this.razao.sacar(destino, reais("100.00"), chave(), "gastou tudo");
+
+		assertThatThrownBy(() -> this.razao.estornar(pagamento.getId(), chave()))
+			.hasMessageContaining("nao tem saldo para devolver");
+	}
+
+	@Test
+	@DisplayName("estorno tambem respeita a chave de idempotencia")
+	void estorno_idempotente() {
+		Long origem = novaConta();
+		Long destino = novaConta();
+		this.razao.depositar(origem, reais("100.00"), chave(), "carga");
+		Transacao original = this.razao.transferir(origem, destino, reais("30.00"), chave(), "pagamento");
+
+		String chaveDoEstorno = chave();
+		Transacao primeiro = this.razao.estornar(original.getId(), chaveDoEstorno);
+		Transacao repetido = this.razao.estornar(original.getId(), chaveDoEstorno);
+
+		assertThat(repetido.getId()).isEqualTo(primeiro.getId());
+		assertThat(saldoDe(origem)).isEqualByComparingTo("100.00");
+	}
+
 	// --- reconciliacao ------------------------------------------------------
 
 	@Test
@@ -283,6 +413,10 @@ class RazaoIT {
 	// --- auxiliares ---------------------------------------------------------
 
 	private Long novaConta() {
+		return novaConta(Limite.PADRAO);
+	}
+
+	private Long novaConta(BigDecimal limiteDiario) {
 		Usuario usuario = this.usuarios
 			.save(new Usuario("Titular de Teste", Cpf.de(DadosDeTeste.cpfValido()), DadosDeTeste.emailUnico(),
 					"hash-nao-usado-neste-teste"));
@@ -291,6 +425,7 @@ class RazaoIT {
 				this.gerador.proximoNumero(), TipoConta.CORRENTE));
 
 		this.saldos.save(new Saldo(conta.getId(), false));
+		this.limites.save(new Limite(conta.getId(), limiteDiario));
 		return conta.getId();
 	}
 

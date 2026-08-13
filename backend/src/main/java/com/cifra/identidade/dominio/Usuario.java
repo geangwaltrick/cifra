@@ -33,6 +33,13 @@ public class Usuario {
 	@Column(name = "senha_hash", nullable = false, length = 255)
 	private String senhaHash;
 
+	/**
+	 * Senha de movimentacao, separada da de acesso. Nula ate o titular definir;
+	 * a partir dai e exigida em toda saida de dinheiro.
+	 */
+	@Column(name = "senha_transacional_hash", length = 255)
+	private String senhaTransacionalHash;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false, length = 24)
 	private StatusUsuario status;
@@ -69,6 +76,14 @@ public class Usuario {
 		return this.status.podeAutenticar();
 	}
 
+	public void definirSenhaTransacional(String hash) {
+		this.senhaTransacionalHash = hash;
+	}
+
+	public boolean exigeSenhaTransacional() {
+		return this.senhaTransacionalHash != null;
+	}
+
 	@PrePersist
 	void aoCriar() {
 		Instant agora = Instant.now();
@@ -99,6 +114,10 @@ public class Usuario {
 
 	public String getSenhaHash() {
 		return this.senhaHash;
+	}
+
+	public String getSenhaTransacionalHash() {
+		return this.senhaTransacionalHash;
 	}
 
 	public StatusUsuario getStatus() {

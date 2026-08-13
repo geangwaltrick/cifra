@@ -82,8 +82,13 @@ public class Transacao {
 
 	/** Debita a origem e credita o destino, no mesmo ato. */
 	public void lancarPar(Long contaDebitada, Long contaCreditada, BigDecimal valor) {
-		this.lancamentos.add(new Lancamento(this, contaDebitada, valor.negate()));
-		this.lancamentos.add(new Lancamento(this, contaCreditada, valor));
+		lancar(contaDebitada, valor.negate());
+		lancar(contaCreditada, valor);
+	}
+
+	/** Uma linha isolada. Usado pelo estorno, que espelha os lancamentos originais. */
+	public void lancar(Long contaId, BigDecimal valor) {
+		this.lancamentos.add(new Lancamento(this, contaId, valor));
 	}
 
 	public void liquidar() {
