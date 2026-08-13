@@ -23,8 +23,9 @@ public class Conta {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "usuario_id", nullable = false)
+	/** Nulo apenas na conta de liquidacao, que nao pertence a ninguem. */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "usuario_id")
 	private Usuario usuario;
 
 	@Column(name = "agencia", nullable = false, length = 4)

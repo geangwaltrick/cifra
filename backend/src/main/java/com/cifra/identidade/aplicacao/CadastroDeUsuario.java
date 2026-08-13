@@ -13,6 +13,8 @@ import com.cifra.identidade.dominio.Usuario;
 import com.cifra.identidade.repositorio.ContaRepository;
 import com.cifra.identidade.repositorio.TokenDeVerificacaoRepository;
 import com.cifra.identidade.repositorio.UsuarioRepository;
+import com.cifra.razao.dominio.Saldo;
+import com.cifra.razao.repositorio.SaldoRepository;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,8 @@ public class CadastroDeUsuario {
 
 	private final TokenDeVerificacaoRepository tokens;
 
+	private final SaldoRepository saldos;
+
 	private final GeradorDeNumeroDeConta gerador;
 
 	private final PasswordEncoder senhas;
@@ -38,11 +42,12 @@ public class CadastroDeUsuario {
 	private final PropriedadesDoCifra propriedades;
 
 	public CadastroDeUsuario(UsuarioRepository usuarios, ContaRepository contas,
-			TokenDeVerificacaoRepository tokens, GeradorDeNumeroDeConta gerador,
+			TokenDeVerificacaoRepository tokens, SaldoRepository saldos, GeradorDeNumeroDeConta gerador,
 			PasswordEncoder senhas, ServicoDeEmail email, PropriedadesDoCifra propriedades) {
 		this.usuarios = usuarios;
 		this.contas = contas;
 		this.tokens = tokens;
+		this.saldos = saldos;
 		this.gerador = gerador;
 		this.senhas = senhas;
 		this.email = email;
@@ -75,6 +80,10 @@ public class CadastroDeUsuario {
 		Conta conta = new Conta(usuario, GeradorDeNumeroDeConta.AGENCIA_PADRAO,
 				this.gerador.proximoNumero(), TipoConta.CORRENTE);
 		this.contas.save(conta);
+
+		// Conta nasce com sua linha de saldo. Sem ela o razao nao tem onde
+		// projetar o resultado e a primeira movimentacao falharia.
+		this.saldos.save(new Saldo(conta.getId(), false));
 
 		enviarVerificacao(usuario);
 

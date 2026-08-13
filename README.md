@@ -103,6 +103,10 @@ versão do `docker-compose.yml`. Testar contra H2 provaria a coisa errada.
 | POST   | `/api/v1/auth/login`                | não         | 5 tentativas por 15 min, por e-mail e IP |
 | POST   | `/api/v1/auth/refresh`              | não         | Rotaciona e detecta reuso                |
 | GET    | `/api/v1/contas/me`                 | sim         | Conta do usuário do token                |
+| GET    | `/api/v1/contas/me/saldo`           | sim         | Projeção **e** soma do razão, lado a lado |
+| POST   | `/api/v1/depositos`                 | sim         | Aceita `Idempotency-Key`                 |
+| POST   | `/api/v1/saques`                    | sim         | Aceita `Idempotency-Key`                 |
+| POST   | `/api/v1/transferencias`            | sim         | Por agência + número; `Idempotency-Key`  |
 
 Erros seguem RFC 7807. O campo `type` é estável e é nele que o front decide o
 comportamento — nunca no texto da mensagem:
@@ -124,6 +128,45 @@ comportamento — nunca no texto da mensagem:
 - **Refresh rotativo com detecção de reuso.** Cada login abre uma família; cada refresh revoga o anterior. Se um token revogado reaparece, ele foi copiado — e a família inteira cai. A revogação roda em `REQUIRES_NEW` porque a exceção que a acompanha faria rollback dela.
 - **Login não revela se o e-mail existe.** Mesma resposta e mesmo custo de tempo nos dois casos: quando o e-mail não existe, um hash descartável é comparado assim mesmo, senão o tempo de resposta viraria um oráculo.
 
+### De onde vem o dinheiro de um depósito
+
+Se toda transação precisa somar zero, um depósito não pode ter um lançamento só.
+O contrapeso é a **conta de liquidação**: a fronteira contábil entre o Cifra e o
+mundo externo. Depositar credita o cliente e debita a liquidação; sacar faz o
+contrário.
+
+Consequência útil: o saldo da liquidação é, a qualquer instante, o simétrico
+exato da soma de todas as contas de cliente — uma segunda forma de conferir os
+livros, independente da primeira.
+
+**Trade-off assumido:** toda entrada e saída de dinheiro contende na mesma linha
+de saldo da liquidação, que vira ponto de serialização. Para uma demo é o
+correto — é o que garante a conta fechar. Em volume real, o caminho é
+particionar a liquidação em várias contas e somá-las.
+
+### Concorrência
+
+O `SELECT ... FOR UPDATE` trava as contas **sempre em ordem crescente de id**.
+Sem isso, uma transferência de A para B simultânea a uma de B para A trava cada
+uma a sua primeira conta e as duas esperam para sempre. Ordenando, o ciclo não
+se forma — o deadlock é eliminado por construção, não tratado depois.
+
+O banco ainda tem a última palavra: `check (permite_negativo or saldo >= 0)`. Se
+algum caminho de código escapar da validação, o Postgres recusa.
+
+### Reconciliação
+
+Um job pergunta a cada 10 minutos, e o resultado esperado é sempre nada:
+
+1. alguma transação tem lançamentos que não somam zero?
+2. algum saldo projetado divergiu da soma do razão?
+3. a soma de todo o razão deixou de ser zero?
+
+O resultado é exposto em `/actuator/health` como o componente `razao`. A saúde
+da aplicação inclui uma pergunta contábil: **os livros fecham?** Se pararem de
+fechar, o monitoramento acusa junto com banco fora do ar — que é mais ou menos
+a gravidade do problema.
+
 ## Estrutura
 
 ```
@@ -139,7 +182,7 @@ cifra/
 
 - [x] **00 — Fundação:** wrapper, Flyway, Testcontainers, CI
 - [x] **01 — Identidade:** cadastro com validação de CPF, JWT, abertura de conta
-- [ ] **02 — Razão:** lançamentos, idempotência, lock ordenado, reconciliação
+- [x] **02 — Razão:** lançamentos, idempotência, lock ordenado, reconciliação
 - [ ] **03 — Produto:** chaves PIX, extrato, limites, estorno, auditoria
 - [ ] **04 — Front:** React + Vite + TypeScript
 - [ ] **05 — Publicação:** deploy, conta demo com reset diário
