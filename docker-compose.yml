@@ -1,0 +1,30 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: cifra-db
+    environment:
+      POSTGRES_DB: cifra
+      POSTGRES_USER: cifra
+      POSTGRES_PASSWORD: cifra
+    ports:
+      - "5432:5432"
+    volumes:
+      - cifra-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cifra -d cifra"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Captura os e-mails de confirmacao de cadastro em desenvolvimento.
+  # Interface web em http://localhost:8025
+  mail:
+    image: axllent/mailpit:latest
+    container_name: cifra-mail
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  cifra-pgdata:

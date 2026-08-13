@@ -1,0 +1,34 @@
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.log
+
+# Node / front (fase 04)
+node_modules/
+dist/
+.vite/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+nbproject/private/
+build/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Segredos: nunca versionar
+.env
+.env.local
+*.pem
+application-local.yml
