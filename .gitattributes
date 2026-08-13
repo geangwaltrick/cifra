@@ -1,2 +1,7 @@
-/mvnw text eol=lf
+# O mvnw roda no runner Linux do CI: precisa de LF, senao o shell responde
+# "bad interpreter: /bin/sh^M". Padrao sem barra inicial para valer em backend/.
+mvnw text eol=lf
+*.sh text eol=lf
+
 *.cmd text eol=crlf
+*.bat text eol=crlf
