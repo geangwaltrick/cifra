@@ -88,8 +88,16 @@ As duas suítes são separadas de propósito:
 
 | Comando         | Roda            | Precisa de Docker |
 |-----------------|-----------------|-------------------|
-| `./mvnw test`   | `*Test` (unidade) | não             |
-| `./mvnw verify` | `*Test` + `*IT` (integração) | sim  |
+| `./mvnw test`   | 22 testes de unidade | não          |
+| `./mvnw verify` | 22 unidade + 34 integração | sim    |
+
+Os três que sustentam a tese do projeto:
+
+| Cenário | O que prova |
+|---|---|
+| 50 saques paralelos sobre R$ 100 | exatamente 10 passam; saldo fecha em zero |
+| 50 transferências cruzadas A↔B | nenhuma falha por deadlock; total preservado |
+| 50 depósitos com a mesma chave | uma transação só; todas devolvem o mesmo id |
 
 Testes de integração sobem um PostgreSQL 16 real via Testcontainers — a mesma
 versão do `docker-compose.yml`. Testar contra H2 provaria a coisa errada.
@@ -127,6 +135,19 @@ comportamento — nunca no texto da mensagem:
 - **Tokens nunca em claro no banco.** Verificação de e-mail e refresh guardam só o SHA-256; um dump vazado não vira sessão ativa.
 - **Refresh rotativo com detecção de reuso.** Cada login abre uma família; cada refresh revoga o anterior. Se um token revogado reaparece, ele foi copiado — e a família inteira cai. A revogação roda em `REQUIRES_NEW` porque a exceção que a acompanha faria rollback dela.
 - **Login não revela se o e-mail existe.** Mesma resposta e mesmo custo de tempo nos dois casos: quando o e-mail não existe, um hash descartável é comparado assim mesmo, senão o tempo de resposta viraria um oráculo.
+
+### Dinheiro trafega como texto no JSON
+
+```json
+{ "saldo": "374.75", "saldoConferidoNoRazao": "374.75" }
+```
+
+Número em JSON vira `double` na maioria dos clientes — em JavaScript, sempre.
+Um saldo de `0.10` serializado como número volta do `JSON.parse` como ponto
+flutuante binário, e daí em diante toda conta feita no front carrega erro.
+String obriga o cliente a escolher conscientemente como representar o valor.
+Registrado como módulo Jackson global, não anotação por campo: um DTO novo com
+valor monetário não pode depender de alguém lembrar.
 
 ### De onde vem o dinheiro de um depósito
 
