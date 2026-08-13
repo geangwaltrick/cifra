@@ -31,6 +31,10 @@ public class SegurancaConfig {
 			.authorizeHttpRequests((rotas) -> rotas
 				.requestMatchers("/api/v1/auth/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
+				// O dispatch de erro tambem atravessa esta cadeia. Sem liberar
+				// /error, qualquer 500 volta para o cliente como um 401 vazio --
+				// e o erro de verdade fica invisivel de fora.
+				.requestMatchers("/error").permitAll()
 				.anyRequest().authenticated())
 			.oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
 			.build();

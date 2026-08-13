@@ -173,14 +173,15 @@ class MovimentacaoIT {
 			.retrieve()
 			.toBodilessEntity();
 
-		return (String) this.http.post()
+		ResponseEntity<Map<String, Object>> login = this.http.post()
 			.uri("/api/v1/auth/login")
 			.contentType(MediaType.APPLICATION_JSON)
 			.body(Map.of("email", email, "senha", SENHA))
 			.retrieve()
-			.toEntity(JSON)
-			.getBody()
-			.get("accessToken");
+			.toEntity(JSON);
+
+		assertThat(login.getStatusCode()).as("corpo do login: %s", login.getBody()).isEqualTo(HttpStatus.OK);
+		return (String) login.getBody().get("accessToken");
 	}
 
 	private ResponseEntity<Map<String, Object>> depositar(String token, String valor, String chave) {

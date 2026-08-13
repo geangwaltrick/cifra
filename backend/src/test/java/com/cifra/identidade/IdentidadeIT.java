@@ -116,7 +116,7 @@ class IdentidadeIT {
 		verificarEmail(tokenDeVerificacaoCapturado());
 
 		ResponseEntity<Map<String, Object>> login = entrar(email, SENHA);
-		assertThat(login.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(login.getStatusCode()).as("corpo do login: %s", login.getBody()).isEqualTo(HttpStatus.OK);
 		assertThat(login.getBody()).containsEntry("tipo", "Bearer");
 		assertThat(login.getBody()).containsKey("accessToken").containsKey("refreshToken");
 
@@ -145,7 +145,10 @@ class IdentidadeIT {
 		cadastrar(email, cpfValido());
 		verificarEmail(tokenDeVerificacaoCapturado());
 
-		String primeiroRefresh = (String) entrar(email, SENHA).getBody().get("refreshToken");
+		ResponseEntity<Map<String, Object>> login = entrar(email, SENHA);
+		assertThat(login.getStatusCode()).as("corpo do login: %s", login.getBody()).isEqualTo(HttpStatus.OK);
+
+		String primeiroRefresh = (String) login.getBody().get("refreshToken");
 
 		ResponseEntity<Map<String, Object>> renovacao = renovar(primeiroRefresh);
 		assertThat(renovacao.getStatusCode()).isEqualTo(HttpStatus.OK);

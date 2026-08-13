@@ -11,7 +11,10 @@ import org.springframework.stereotype.Component;
  * fecham? Se o razao deixar de somar zero, o monitoramento acusa junto com
  * banco fora do ar -- que e mais ou menos a gravidade do problema.
  */
-@Component("razao")
+// O nome do bean vira a chave em /actuator/health depois que o Boot remove o
+// sufixo "HealthIndicator" -- ou seja, a chave sai como "razao". Nomear o bean
+// de "razao" direto colidiria com o servico Razao e nenhum contexto subiria.
+@Component("razaoHealthIndicator")
 public class SaudeDoRazao implements HealthIndicator {
 
 	private final Reconciliacao reconciliacao;

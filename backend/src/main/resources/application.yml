@@ -59,6 +59,13 @@ management:
       show-details: always
       probes:
         enabled: true
+  health:
+    mail:
+      # SMTP fora do ar nao torna a aplicacao doente: o envio de verificacao
+      # degrada sozinho (o link fica no log) e todo o resto segue funcionando.
+      # Sem isto, um servidor de e-mail indisponivel devolve 503 no health e
+      # tira a aplicacao do ar em qualquer orquestrador.
+      enabled: false
 
 server:
   port: ${PORT:8080}

@@ -6,6 +6,8 @@ import java.time.Instant;
 import com.cifra.configuracao.PropriedadesDoCifra;
 import com.cifra.identidade.dominio.Usuario;
 
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -37,7 +39,12 @@ public class EmissorDeJwt {
 			.claim("nome", usuario.getNome())
 			.build();
 
-		String valor = this.codificador.encode(JwtEncoderParameters.from(reivindicacoes)).getTokenValue();
+		// O header precisa ser explicito. Sem ele o NimbusJwtEncoder assume
+		// RS256, nao acha nenhuma chave RSA no segredo HMAC e falha com
+		// "Failed to select a JWK signing key" -- em todo login bem-sucedido.
+		JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+
+		String valor = this.codificador.encode(JwtEncoderParameters.from(header, reivindicacoes)).getTokenValue();
 		return new AccessToken(valor, this.validade.toSeconds());
 	}
 
