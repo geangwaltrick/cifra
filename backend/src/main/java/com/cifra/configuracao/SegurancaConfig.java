@@ -1,5 +1,9 @@
 package com.cifra.configuracao;
 
+import java.time.Duration;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +15,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
@@ -27,6 +34,7 @@ public class SegurancaConfig {
 		return http
 			// API sem sessao e sem cookie: nao ha o que um ataque CSRF sequestrar.
 			.csrf(AbstractHttpConfigurer::disable)
+			.cors(Customizer.withDefaults())
 			.sessionManagement((sessao) -> sessao.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests((rotas) -> rotas
 				.requestMatchers("/api/v1/auth/**").permitAll()
@@ -43,6 +51,28 @@ public class SegurancaConfig {
 	@Bean
 	PasswordEncoder codificadorDeSenha() {
 		return new BCryptPasswordEncoder(CUSTO_DO_BCRYPT);
+	}
+
+	/**
+	 * Origens vem de configuracao, nunca curinga.
+	 *
+	 * <p>{@code allowedOrigins("*")} e o atalho que costuma virar permanente.
+	 * Em API que move dinheiro, listar as origens de propósito custa uma linha
+	 * de ambiente e evita que qualquer pagina consiga falar com o banco.
+	 */
+	@Bean
+	CorsConfigurationSource origensPermitidas(
+			@Value("${cifra.cors.origens:http://localhost:5173}") List<String> origens) {
+
+		CorsConfiguration regra = new CorsConfiguration();
+		regra.setAllowedOrigins(origens);
+		regra.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		regra.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key", "X-Senha-Transacional"));
+		regra.setMaxAge(Duration.ofHours(1));
+
+		UrlBasedCorsConfigurationSource fonte = new UrlBasedCorsConfigurationSource();
+		fonte.registerCorsConfiguration("/**", regra);
+		return fonte;
 	}
 
 }

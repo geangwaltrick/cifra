@@ -1,0 +1,138 @@
+:root {
+  --paper: #f5f7fa;
+  --surface: #ffffff;
+  --ink: #131820;
+  --ink-soft: #4a5563;
+  --rule: #d8dee8;
+  --accent: #24558c;
+  --credito: #1d6b5a;
+  --debito: #a63a32;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0d1117;
+    --surface: #151b24;
+    --ink: #e4e9f0;
+    --ink-soft: #a3aebf;
+    --rule: #262f3c;
+    --accent: #78a9e0;
+    --credito: #4fbfa0;
+    --debito: #e0796e;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+#root {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cartao {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rotulo {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-family: Consolas, ui-monospace, monospace;
+}
+
+.saldo {
+  font-size: 2.1rem;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+input {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+[role='alert'] {
+  margin: 0;
+  color: var(--debito);
+  font-size: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+td:last-child,
+td:nth-child(3) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.credito {
+  color: var(--credito);
+}
+
+.debito {
+  color: var(--debito);
+}
