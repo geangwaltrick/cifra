@@ -94,6 +94,36 @@ As duas suítes são separadas de propósito:
 Testes de integração sobem um PostgreSQL 16 real via Testcontainers — a mesma
 versão do `docker-compose.yml`. Testar contra H2 provaria a coisa errada.
 
+## API disponível
+
+| Método | Rota                                | Autenticada | Observação                              |
+|--------|-------------------------------------|-------------|-----------------------------------------|
+| POST   | `/api/v1/auth/registro`             | não         | Valida CPF e já abre a conta corrente    |
+| GET    | `/api/v1/auth/verificar-email`      | não         | Ativa o usuário pelo link do e-mail      |
+| POST   | `/api/v1/auth/login`                | não         | 5 tentativas por 15 min, por e-mail e IP |
+| POST   | `/api/v1/auth/refresh`              | não         | Rotaciona e detecta reuso                |
+| GET    | `/api/v1/contas/me`                 | sim         | Conta do usuário do token                |
+
+Erros seguem RFC 7807. O campo `type` é estável e é nele que o front decide o
+comportamento — nunca no texto da mensagem:
+
+```json
+{
+  "type": "https://cifra.dev/problemas/credenciais-invalidas",
+  "title": "credenciais-invalidas",
+  "status": 401,
+  "detail": "E-mail ou senha incorretos.",
+  "momento": "2026-08-13T17:22:07Z"
+}
+```
+
+### Decisões de segurança
+
+- **Senha em BCrypt custo 12** (~250 ms por hash). Caro de propósito.
+- **Tokens nunca em claro no banco.** Verificação de e-mail e refresh guardam só o SHA-256; um dump vazado não vira sessão ativa.
+- **Refresh rotativo com detecção de reuso.** Cada login abre uma família; cada refresh revoga o anterior. Se um token revogado reaparece, ele foi copiado — e a família inteira cai. A revogação roda em `REQUIRES_NEW` porque a exceção que a acompanha faria rollback dela.
+- **Login não revela se o e-mail existe.** Mesma resposta e mesmo custo de tempo nos dois casos: quando o e-mail não existe, um hash descartável é comparado assim mesmo, senão o tempo de resposta viraria um oráculo.
+
 ## Estrutura
 
 ```
@@ -108,7 +138,7 @@ cifra/
 ## Roadmap
 
 - [x] **00 — Fundação:** wrapper, Flyway, Testcontainers, CI
-- [ ] **01 — Identidade:** cadastro com validação de CPF, JWT, abertura de conta
+- [x] **01 — Identidade:** cadastro com validação de CPF, JWT, abertura de conta
 - [ ] **02 — Razão:** lançamentos, idempotência, lock ordenado, reconciliação
 - [ ] **03 — Produto:** chaves PIX, extrato, limites, estorno, auditoria
 - [ ] **04 — Front:** React + Vite + TypeScript

@@ -6,7 +6,9 @@
 create table usuarios (
     id            bigserial    primary key,
     nome          varchar(120) not null,
-    cpf           char(11)     not null,
+    -- varchar, nunca char: o bpchar do Postgres preenche com espacos ate o tamanho
+    -- fixo e o validador de esquema do Hibernate espera varchar para String.
+    cpf           varchar(11)  not null,
     email         varchar(180) not null,
     senha_hash    varchar(255) not null,
     status        varchar(24)  not null default 'PENDENTE_VERIFICACAO',
@@ -24,7 +26,7 @@ create table usuarios (
 create table contas (
     id         bigserial   primary key,
     usuario_id bigint      not null,
-    agencia    char(4)     not null,
+    agencia    varchar(4)  not null,
     numero     varchar(12) not null,
     tipo       varchar(16) not null default 'CORRENTE',
     status     varchar(16) not null default 'ATIVA',

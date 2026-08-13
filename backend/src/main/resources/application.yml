@@ -26,6 +26,28 @@ spring:
   jackson:
     default-property-inclusion: non_null
 
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+
+cifra:
+  url-base: ${APP_URL:http://localhost:8080}
+
+  jwt:
+    # Padrao serve so para desenvolvimento. Em producao vem do ambiente, e a
+    # aplicacao recusa subir com menos de 32 bytes.
+    segredo: ${JWT_SECRET:desenvolvimento-troque-este-segredo-de-32-bytes-ou-mais}
+    validade-do-acesso: PT15M
+    validade-do-refresh: P7D
+
+  email:
+    remetente: ${MAIL_FROM:nao-responda@cifra.local}
+    validade-da-verificacao: PT24H
+
+  login:
+    tentativas-por-janela: 5
+    janela: PT15M
+
 management:
   endpoints:
     web:
