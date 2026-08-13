@@ -236,6 +236,18 @@ da aplicação inclui uma pergunta contábil: **os livros fecham?** Se pararem d
 fechar, o monitoramento acusa junto com banco fora do ar — que é mais ou menos
 a gravidade do problema.
 
+### O front: três decisões que importam mais que as telas
+
+- **Refresh em voo único.** Cinco requisições que expiram juntas disparariam cinco refreshes. O backend rotaciona e revoga o anterior a cada um, então o segundo chega com token já revogado, o servidor lê como roubo e derruba a família — o usuário seria deslogado por ter aberto duas abas. Quem chega durante uma renovação em andamento espera nela.
+- **A chave de idempotência nasce com a intenção de pagar**, não com a requisição, e é reusada no retry. Se mudasse a cada envio, um reenvio após timeout viraria um segundo pagamento e a proteção do backend não teria o que proteger.
+- **Dinheiro nunca vira `number`.** Contas em centavos inteiros, resultado de volta para string. Um `parseFloat` jogaria fora a decisão tomada no backend.
+
+O texto de erro vem do `type` do RFC 7807, nunca do `detail` — um `type` desconhecido cai em mensagem genérica em vez de vazar vocabulário de servidor.
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:5173
+```
+
 ## Estrutura
 
 ```
@@ -253,5 +265,5 @@ cifra/
 - [x] **01 — Identidade:** cadastro com validação de CPF, JWT, abertura de conta
 - [x] **02 — Razão:** lançamentos, idempotência, lock ordenado, reconciliação
 - [x] **03 — Produto:** chaves PIX, extrato, limites, estorno, auditoria
-- [ ] **04 — Front:** React + Vite + TypeScript
+- [x] **04 — Front:** React + Vite + TypeScript
 - [ ] **05 — Publicação:** deploy, conta demo com reset diário

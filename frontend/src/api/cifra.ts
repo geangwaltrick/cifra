@@ -108,4 +108,43 @@ export function pagarPix(chavePix: string, valor: Dinheiro, descricao: string, c
   });
 }
 
+export type ChavePix = {
+  id: number;
+  tipo: 'CPF' | 'EMAIL' | 'TELEFONE' | 'ALEATORIA';
+  valor: string;
+  criadoEm: string;
+};
+
+export type Limite = {
+  limiteDiario: Dinheiro;
+  gastoHoje: Dinheiro;
+  disponivelHoje: Dinheiro;
+};
+
+export const listarChaves = () => requisitar<ChavePix[]>('/api/v1/pix/chaves');
+
+export function registrarChave(tipo: ChavePix['tipo'], valor: string) {
+  return requisitar<ChavePix>('/api/v1/pix/chaves', { metodo: 'POST', corpo: { tipo, valor } });
+}
+
+export const removerChave = (id: number) =>
+  requisitar<void>(`/api/v1/pix/chaves/${id}`, { metodo: 'DELETE' });
+
+export const meuLimite = () => requisitar<Limite>('/api/v1/contas/me/limite');
+
+export function ajustarLimite(limiteDiario: Dinheiro, senha?: string) {
+  return requisitar<Limite>('/api/v1/contas/me/limite', {
+    metodo: 'PUT',
+    corpo: { limiteDiario },
+    senhaTransacional: senha,
+  });
+}
+
+export function definirSenhaTransacional(senhaDeAcesso: string, senhaTransacional: string) {
+  return requisitar<{ mensagem: string }>('/api/v1/seguranca/senha-transacional', {
+    metodo: 'POST',
+    corpo: { senhaDeAcesso, senhaTransacional },
+  });
+}
+
 export const novaChaveDeIdempotencia = () => crypto.randomUUID();
