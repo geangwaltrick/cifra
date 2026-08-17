@@ -60,8 +60,13 @@ public class SegurancaConfig {
 	 * Em API que move dinheiro, listar as origens de propósito custa uma linha
 	 * de ambiente e evita que qualquer pagina consiga falar com o banco.
 	 */
+	// ATENCAO ao nome deste metodo. O Spring Security procura a fonte de
+	// configuracao de CORS por um nome fixo, "corsConfigurationSource". Um
+	// nome mais descritivo aqui faz o filtro simplesmente nao ser criado, e o
+	// navegador barra toda chamada do front -- sem erro nenhum no servidor.
+	// Nenhum teste de integracao pega isso: eles nao passam por navegador.
 	@Bean
-	CorsConfigurationSource origensPermitidas(
+	CorsConfigurationSource corsConfigurationSource(
 			@Value("${cifra.cors.origens:http://localhost:5173}") List<String> origens) {
 
 		CorsConfiguration regra = new CorsConfiguration();
