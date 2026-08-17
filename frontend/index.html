@@ -1,10 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Cifra — banco digital construído sobre um razão de partidas dobradas." />
+
+    <!-- A fonte do texto entra no caminho critico de proposito: sem o preload
+         ela so comeca a baixar depois que o CSS do bundle e analisado, e a
+         primeira pintura sai com a fonte de fallback para trocar logo em
+         seguida. O mono nao ganha preload -- aparece so em rotulo pequeno. -->
+    <link rel="preload" href="/fontes/jakarta-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <title>Cifra</title>
   </head>
   <body>
     <div id="root"></div>

@@ -18,8 +18,20 @@
   --ink-soft: #5b6270;
   --ink-faint: #8b929f;
 
-  --credito: #0f7b54;
+  --credito: #0b7c72;
   --debito: #14161b;
+
+  /* Cores das series do grafico -- separadas das cores de texto de proposito.
+     Texto precisa de 4,5:1 contra o papel; marca de grafico precisa de 3:1 e
+     de croma que sobreviva a daltonismo. Sao dois requisitos diferentes, e um
+     token so obrigaria a escolher qual dos dois cumprir mal.
+
+     O par foi medido, nao escolhido: separacao em OKLab sob deuteranopia e
+     protanopia, banda de luminosidade e contraste contra a superficie de cada
+     tema. Vermelho contra verde puro reprovaria -- por isso o verde puxa para
+     o azul. */
+  --serie-entrada: #0d9488;
+  --serie-saida: #c8102e;
 
   --sombra-card: 0 1px 2px rgba(20, 22, 27, 0.04), 0 8px 24px -18px rgba(20, 22, 27, 0.4);
   --sombra-marca: 0 10px 30px -14px rgba(200, 16, 46, 0.5);
@@ -27,8 +39,10 @@
   --raio: 14px;
   --raio-pequeno: 9px;
 
-  --sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-  --mono: Consolas, 'Cascadia Mono', ui-monospace, monospace;
+  /* Fonte propria, embutida em `fontes.css`. A pilha do sistema fica atras
+     apenas como socorro do primeiro quadro, ate a Jakarta chegar. */
+  --sans: 'Jakarta', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Plex Mono', Consolas, ui-monospace, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -46,8 +60,15 @@
     --ink-soft: #a4abb8;
     --ink-faint: #717886;
 
-    --credito: #3ec08a;
+    --credito: #43c9bb;
     --debito: #e9ebef;
+
+    /* O tema escuro nao e o claro invertido: as duas series foram re-escolhidas
+       contra a superficie escura e revalidadas nela. Clarear as cores do tema
+       claro estouraria a banda de luminosidade e colaria as duas na
+       deuteranopia. */
+    --serie-entrada: #12a594;
+    --serie-saida: #ef4a5f;
 
     --sombra-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -18px rgba(0, 0, 0, 0.9);
     --sombra-marca: 0 10px 30px -14px rgba(0, 0, 0, 0.8);
@@ -147,7 +168,7 @@ body {
 
 .conteudo {
   padding: 1.75rem 1.5rem 4rem;
-  max-width: 44rem;
+  max-width: 62rem;
   width: 100%;
   margin: 0 auto;
 }
@@ -206,10 +227,69 @@ body {
 
 /* ---------- cartoes ---------- */
 
+/* Empilhado e estreito e o certo para PIX, cartao e ajustes: sao formularios,
+   e linha de formulario larga demais cansa de ler. */
 .painel {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  max-width: 44rem;
+}
+
+/* A tela da conta e a excecao, e por isso pede a classe a mais.
+ *
+ * Empilhada, ela deixava metade do monitor vazia e escondia o extrato abaixo
+ * da dobra -- parecia um formulario, nao o painel de um banco. Aqui cada cartao
+ * declara quanto ocupa: `.larga` toma duas colunas, `.total` toma a largura
+ * inteira, o resto fica com uma.
+ */
+.painel.largo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  max-width: none;
+}
+
+.painel.largo > .larga {
+  grid-column: span 2;
+}
+
+.painel.largo > .total,
+.painel.largo > .cabecalho,
+.painel.largo > .tiles,
+.painel.largo > [role='alert'] {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 62rem) {
+  .painel.largo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .painel.largo > .larga,
+  .painel.largo > .total {
+    grid-column: 1 / -1;
+  }
+}
+
+.cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.cabecalho h1 {
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+
+/* Titulo do cartao a esquerda, contexto a direita, na mesma linha de base. */
+.entre-linhas {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .cartao {
@@ -415,16 +495,22 @@ form > .link {
   background: transparent;
   color: rgba(255, 255, 255, 0.75);
   border: none;
-  padding: 0;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  padding: 0.15rem;
   width: auto;
+  display: flex;
+  align-self: center;
 }
 
 .olho:hover {
   color: #fff;
+  filter: none;
+}
+
+/* A prova de que os livros fecham, escrita embaixo do saldo. */
+.conferencia {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Atalhos logo abaixo do saldo: e o gesto que se repete todo dia. */
@@ -470,15 +556,19 @@ form > .link {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  padding: 0.9rem 0 0.5rem;
+  padding: 0.7rem 0 0.35rem;
   border-bottom: 1px solid var(--rule);
+}
+
+.grupo:first-of-type .dia {
+  padding-top: 0;
 }
 
 .movimento {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.8rem 0;
+  padding: 0.62rem 0;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -831,13 +921,17 @@ button.secundario:hover:not(:disabled) {
   display: flex;
   align-items: baseline;
   gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
+/* O valor encolhe conforme a coluna aperta em vez de quebrar no meio: "R$
+   95.506,89" partido em duas linhas deixa de ser um numero e vira duas coisas. */
 .valor-forte {
-  font-size: 1.8rem;
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .medidor {
@@ -928,4 +1022,243 @@ button.secundario:hover:not(:disabled) {
   font-weight: 700;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------- numeros do mes ---------- */
+
+/* Tres colunas fixas, e nao `auto-fit`: com `auto-fit` a faixa criava sete
+   trilhas de 10rem numa tela larga e os tres numeros ficavam amontoados a
+   esquerda, sem alinhar com os cartoes de baixo. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem 0.9rem;
+}
+
+@media (max-width: 34rem) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.faixa-titulo {
+  grid-column: 1 / -1;
+  margin-left: 0.15rem;
+}
+
+/* Numa largura que so comporta duas colunas, o terceiro numero ficaria sozinho
+   ao lado de um buraco. Ocupando a linha inteira, vira um rodape da faixa. */
+@media (max-width: 34rem) {
+  /* `of-type` e nao `child`: o titulo da faixa e o primeiro filho e
+     desalinharia a contagem. */
+  .tile:last-of-type:nth-of-type(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra-card);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tile strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.negativo {
+  color: var(--marca);
+}
+
+/* ---------- para onde foi ---------- */
+
+.destinos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Nome e valor na mesma linha, barra ocupando a linha de baixo inteira: em
+   coluna estreita o valor nao briga por espaco com o nome do lugar. */
+.destinos li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+}
+
+.destino-nome {
+  font-size: 0.88rem;
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.destino-valor {
+  font-size: 0.88rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.destino-barra {
+  grid-column: 1 / -1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-sunk);
+  overflow: hidden;
+}
+
+.destino-barra i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--serie-saida);
+}
+
+/* ---------- grafico de fluxo ---------- */
+
+.gr-caixa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.gr-legenda {
+  display: flex;
+  gap: 1rem;
+}
+
+.gr-chave {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.gr-amostra {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.gr-amostra.entrada {
+  background: var(--serie-entrada);
+}
+
+.gr-amostra.saida {
+  background: var(--serie-saida);
+}
+
+.gr-tela {
+  position: relative;
+}
+
+.gr-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gr-grade {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.gr-eixo {
+  fill: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+/* O SVG encolhe junto com a coluna, e com ele o texto: 9 px do desenho viram
+   5 px reais num celular. O tamanho declarado aqui e em unidades do viewBox,
+   entao aumenta-lo devolve o texto ao tamanho legivel depois da escala. */
+@media (max-width: 48rem) {
+  .gr-eixo {
+    font-size: 14px;
+  }
+
+  .gr-eixo.alternado {
+    display: none;
+  }
+
+  .gr-marca-valor {
+    font-size: 15px;
+  }
+}
+
+.gr-barra.entrada {
+  fill: var(--serie-entrada);
+}
+
+.gr-barra.saida {
+  fill: var(--serie-saida);
+}
+
+.gr-marca-valor {
+  fill: var(--ink-soft);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* A dica segue a semana apontada e fica ancorada acima do grafico: acompanhar
+   o cursor em dois eixos faz o texto tremer sobre as barras que ele explica. */
+.gr-dica {
+  position: absolute;
+  top: -0.2rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--raio-pequeno);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  box-shadow: var(--sombra-card);
+  pointer-events: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.gr-dica-titulo {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gr-dica-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ---------- acessibilidade ---------- */
+
+/* Fora da vista, dentro da arvore de acessibilidade: a tabela por tras do
+   grafico existe para quem le a pagina com leitor de tela. `display: none`
+   apagaria os dados junto com o desenho. */
+.apenas-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

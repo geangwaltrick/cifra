@@ -72,10 +72,20 @@ export const minhaConta = () => requisitar<Conta>('/api/v1/contas/me');
 
 export const meuSaldo = () => requisitar<Saldo>('/api/v1/contas/me/saldo');
 
-export function meuExtrato(pagina = 0, tipo?: string) {
+export function meuExtrato(pagina = 0, tipo?: string, tamanho = 25) {
   const filtro = tipo ? `&tipo=${encodeURIComponent(tipo)}` : '';
-  return requisitar<Extrato>(`/api/v1/contas/me/extrato?pagina=${pagina}&tamanho=25${filtro}`);
+  return requisitar<Extrato>(`/api/v1/contas/me/extrato?pagina=${pagina}&tamanho=${tamanho}${filtro}`);
 }
+
+/**
+ * Historico recente inteiro numa tacada, para o painel somar por semana e por
+ * destino.
+ *
+ * Cem e o teto que o backend aceita por pagina, e e de proposito que este
+ * metodo nao pagine atras das demais: o resumo mostra dois meses, nao a vida
+ * toda da conta. Se um dia mostrar, a soma desce para o banco.
+ */
+export const meuHistorico = () => meuExtrato(0, undefined, 100);
 
 /**
  * A chave e gerada uma vez por intencao de pagamento, nao por requisicao.

@@ -1,0 +1,63 @@
+/*
+ * Tipografia propria, servida pelo proprio dominio.
+ *
+ * A fonte do sistema ('Segoe UI' no Windows, 'San Francisco' no Mac) e a marca
+ * registrada de projeto de estudo: o mesmo app muda de cara conforme o sistema
+ * operacional de quem abre, e nenhuma decisao tipografica sobrevive a isso.
+ *
+ * Os arquivos ficam em `public/fontes` e nao vem de CDN. Tres motivos, em
+ * ordem de importancia: um terceiro fora do ar nao derruba a identidade da
+ * pagina, o navegador nao anuncia a visita a outro dominio, e some um
+ * handshake TLS do caminho critico. Sao 4 arquivos, 79 KB somados -- menos que
+ * uma foto.
+ *
+ * `swap` de proposito: o texto aparece na hora com a fonte de fallback e troca
+ * quando a propria chega. Banco que mostra tela em branco esperando fonte
+ * carregar tem prioridade errada.
+ */
+
+/* Plus Jakarta Sans -- variavel de 200 a 800 num arquivo so, entao pesos
+   intermediarios (550, 650) saem de graca, sem baixar um arquivo por peso. */
+@font-face {
+  font-family: 'Jakarta';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fontes/jakarta-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Jakarta';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fontes/jakarta-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* IBM Plex Mono para rotulo, codigo e numero de cartao: largura fixa de
+   verdade, em vez da Consolas de quem esta no Windows e outra coisa em quem
+   nao esta. */
+@font-face {
+  font-family: 'Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fontes/plexmono-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fontes/plexmono-600-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
