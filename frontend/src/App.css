@@ -303,7 +303,156 @@ form > .link {
   flex-shrink: 0;
 }
 
+/* ---------- saldo e acoes ---------- */
+
+.saldo-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+
+.olho {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  border: none;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  width: auto;
+}
+
+.olho:hover {
+  color: #fff;
+}
+
+/* Atalhos logo abaixo do saldo: e o gesto que se repete todo dia. */
+.acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.acoes button {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 0.88rem;
+  padding: 0.6rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.acoes button:hover {
+  background: rgba(255, 255, 255, 0.26);
+  filter: none;
+}
+
+.acoes button span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* ---------- extrato ---------- */
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Data uma vez por dia, e nao repetida em toda linha. */
+.dia {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0.9rem 0 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.movimento {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.movimento:last-child {
+  border-bottom: none;
+}
+
+/* Seta em vez de cor sozinha: entrada e saida continuam distinguiveis
+   para quem nao separa verde de cinza. */
+.selo {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.selo.entrada {
+  background: color-mix(in srgb, var(--credito) 14%, transparent);
+  color: var(--credito);
+}
+
+.selo.saida {
+  background: var(--surface-sunk);
+  color: var(--ink-soft);
+}
+
+.movimento-texto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.movimento-texto .titulo {
+  font-size: 0.92rem;
+  font-weight: 550;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detalhe {
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+}
+
+.movimento-valor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.movimento-valor > span:first-child {
+  font-size: 0.94rem;
+  font-weight: 650;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+
+/* ---------- extrato (tabela antiga) ---------- */
 
 td {
   padding: 0.85rem 0;

@@ -68,7 +68,7 @@ export default function App() {
         </button>
       </nav>
 
-      {aba === 'conta' && <Painel recarregar={versao} />}
+      {aba === 'conta' && <Painel recarregar={versao} irParaPix={() => setAba('pix')} />}
       {aba === 'pix' && <Pix aoMovimentar={() => setVersao(versao + 1)} />}
       {aba === 'ajustes' && <Ajustes />}
     </>
