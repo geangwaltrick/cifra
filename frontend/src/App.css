@@ -1,21 +1,31 @@
+/* ============================================================
+   Cifra — identidade visual
+   Vermelho de marca, superficies brancas, tipografia forte.
+   Tudo alinhado a esquerda: aplicacao se escaneia, nao se le.
+   ============================================================ */
+
 :root {
   --marca: #c8102e;
   --marca-escura: #8e0b20;
-  --marca-clara: #fdecee;
+  --marca-fraca: #fdeef0;
 
-  --paper: #f2f3f5;
+  --paper: #f1f2f4;
   --surface: #ffffff;
-  --rule: #e2e5ea;
+  --surface-sunk: #f7f8fa;
+  --rule: #e4e7ec;
 
-  --ink: #16181d;
-  --ink-soft: #5a616e;
-  --ink-faint: #8a92a0;
+  --ink: #14161b;
+  --ink-soft: #5b6270;
+  --ink-faint: #8b929f;
 
   --credito: #0f7b54;
-  --debito: #16181d;
+  --debito: #14161b;
 
-  --sombra: 0 1px 2px rgba(22, 24, 29, 0.05), 0 10px 30px -22px rgba(22, 24, 29, 0.45);
-  --raio: 10px;
+  --sombra-card: 0 1px 2px rgba(20, 22, 27, 0.04), 0 8px 24px -18px rgba(20, 22, 27, 0.4);
+  --sombra-marca: 0 10px 30px -14px rgba(200, 16, 46, 0.5);
+
+  --raio: 14px;
+  --raio-pequeno: 9px;
 
   --sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --mono: Consolas, 'Cascadia Mono', ui-monospace, monospace;
@@ -23,182 +33,198 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --marca: #ff5a6e;
-    --marca-escura: #7a0d1c;
-    --marca-clara: #2a1216;
+    --marca: #ff5d70;
+    --marca-escura: #6d0b18;
+    --marca-fraca: #2b1317;
 
-    --paper: #0e1014;
-    --surface: #171a20;
-    --rule: #272b33;
+    --paper: #0c0e12;
+    --surface: #16191f;
+    --surface-sunk: #1c2027;
+    --rule: #262b34;
 
-    --ink: #e8eaee;
-    --ink-soft: #a2a9b6;
-    --ink-faint: #6f7784;
+    --ink: #e9ebef;
+    --ink-soft: #a4abb8;
+    --ink-faint: #717886;
 
     --credito: #3ec08a;
-    --debito: #e8eaee;
+    --debito: #e9ebef;
 
-    --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 30px -22px rgba(0, 0, 0, 0.9);
+    --sombra-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -18px rgba(0, 0, 0, 0.9);
+    --sombra-marca: 0 10px 30px -14px rgba(0, 0, 0, 0.8);
   }
 }
 
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
-  max-width: 40rem;
+  max-width: 30rem;
   margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
-}
-
-/* ---------- estrutura ---------- */
-
-.painel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.cartao {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--raio);
-  box-shadow: var(--sombra);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* O saldo e a unica coisa que a pessoa abre o app para ver. Ganha a marca. */
-.cartao.destaque {
-  background: linear-gradient(150deg, var(--marca) 0%, var(--marca-escura) 100%);
-  border-color: transparent;
-  color: #fff;
-}
-
-.cartao.destaque .rotulo {
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.cartao.destaque input {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.28);
-  color: #fff;
-}
-
-.cartao.destaque input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.cartao.destaque button {
-  background: #fff;
-  color: var(--marca-escura);
-  font-weight: 650;
-}
-
-/* ---------- tipografia ---------- */
-
-h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  color: var(--marca);
-}
-
-h2 {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-}
-
-.rotulo {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.saldo {
-  font-size: 2.4rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  padding: 1.25rem 1rem 3rem;
+  text-align: left;
 }
 
 /* ---------- navegacao ---------- */
 
 .abas {
   display: flex;
-  gap: 0.35rem;
   align-items: center;
+  gap: 0.25rem;
   margin-bottom: 1rem;
 }
 
 .aba {
+  border: none;
+  border-radius: 999px;
   background: transparent;
   color: var(--ink-soft);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 0.45rem 1rem;
+  padding: 0.45rem 0.95rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 550;
+  transition: background 0.15s, color 0.15s;
 }
 
 .aba:hover {
   background: var(--surface);
+  color: var(--ink);
 }
 
 .aba.ativa {
   background: var(--marca);
   color: #fff;
-  font-weight: 600;
 }
 
 .abas .link {
   margin-left: auto;
 }
 
-/* ---------- controles ---------- */
+/* ---------- cartoes ---------- */
+
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.cartao {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra-card);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  text-align: left;
+}
+
+/* O saldo e a razao de alguem abrir o app. Recebe a marca inteira. */
+.cartao.destaque {
+  background: linear-gradient(145deg, var(--marca) 0%, var(--marca-escura) 115%);
+  border-color: transparent;
+  box-shadow: var(--sombra-marca);
+  color: #fff;
+  gap: 0.35rem;
+}
+
+.cartao.destaque .rotulo {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cartao.destaque .linha {
+  margin-top: 0.9rem;
+}
+
+.cartao.destaque input {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.cartao.destaque input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.cartao.destaque input:focus {
+  border-color: #fff;
+  box-shadow: none;
+}
+
+.cartao.destaque button {
+  background: #fff;
+  color: var(--marca-escura);
+}
+
+/* ---------- tipografia ---------- */
+
+h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--marca);
+}
+
+h2 {
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  color: var(--ink);
+}
+
+.rotulo {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.saldo {
+  font-size: 2.35rem;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+p {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- formularios ---------- */
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.95rem;
+  align-items: stretch;
 }
 
 label {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.82rem;
-  font-weight: 500;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--ink-soft);
+  text-align: left;
 }
 
 input,
 select {
-  padding: 0.7rem 0.85rem;
+  width: 100%;
+  padding: 0.72rem 0.85rem;
   border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 1rem;
-  font-family: inherit;
+  border-radius: var(--raio-pequeno);
+  background: var(--surface-sunk);
+  font-size: 0.98rem;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -206,34 +232,39 @@ input:focus,
 select:focus {
   outline: none;
   border-color: var(--marca);
-  box-shadow: 0 0 0 3px var(--marca-clara);
+  box-shadow: 0 0 0 3px var(--marca-fraca);
+  background: var(--surface);
 }
 
 button {
-  padding: 0.7rem 1.25rem;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--raio-pequeno);
   background: var(--marca);
   color: #fff;
-  font-size: 0.95rem;
+  padding: 0.75rem 1.2rem;
+  font-size: 0.94rem;
   font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  align-self: flex-start;
   transition: filter 0.15s;
 }
 
+/* Acao principal ocupa a largura toda: em tela de celular, alvo grande. */
+form > button {
+  width: 100%;
+  margin-top: 0.15rem;
+}
+
 button:hover:not(:disabled) {
-  filter: brightness(1.08);
+  filter: brightness(1.07);
 }
 
 button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: default;
 }
 
 button:focus-visible,
-a:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--marca);
   outline-offset: 2px;
 }
@@ -241,70 +272,91 @@ a:focus-visible {
 .link {
   background: transparent;
   color: var(--marca);
-  padding: 0.3rem 0;
+  padding: 0;
   font-size: 0.88rem;
-  font-weight: 500;
+  font-weight: 600;
+  width: auto;
 }
 
 .link:hover:not(:disabled) {
   text-decoration: underline;
 }
 
+form > .link {
+  width: auto;
+  align-self: center;
+}
+
 .linha {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .linha input {
   flex: 1;
 }
 
-/* ---------- extrato ---------- */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.92rem;
-  font-variant-numeric: tabular-nums;
+.linha button {
+  width: auto;
+  flex-shrink: 0;
 }
 
+/* ---------- extrato ---------- */
+
 td {
-  padding: 0.8rem 0;
+  padding: 0.85rem 0;
   border-bottom: 1px solid var(--rule);
   vertical-align: top;
+  font-size: 0.9rem;
 }
 
 tr:last-child td {
   border-bottom: none;
 }
 
-/* Data em coluna estreita e fixa: o olho desce pela lateral sem tropeco. */
+/* Data: coluna estreita e discreta, para o olho descer pela lateral. */
 td:first-child {
-  width: 4.5rem;
+  width: 3.6rem;
+  padding-top: 1rem;
   white-space: nowrap;
   color: var(--ink-faint);
-  font-size: 0.8rem;
-  padding-top: 0.95rem;
+  font-size: 0.74rem;
+}
+
+td:nth-child(2) {
+  font-weight: 550;
+  color: var(--ink);
+}
+
+td:nth-child(2) .rotulo {
+  display: block;
+  margin-top: 0.1rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 400;
 }
 
 td:nth-child(3),
 td:last-child {
   text-align: right;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 td:nth-child(3) {
-  font-weight: 600;
+  font-weight: 650;
 }
 
-/* O saldo apos cada linha e contexto, nao o dado principal. */
+/* Saldo apos e contexto, nao o dado que se procura. */
 td:last-child {
+  width: 5.5rem;
+  padding-top: 1rem;
   color: var(--ink-faint);
-  font-size: 0.8rem;
-  width: 6rem;
-  padding-top: 0.95rem;
+  font-size: 0.74rem;
 }
 
 .credito {
@@ -317,32 +369,28 @@ td:last-child {
 
 /* ---------- avisos ---------- */
 
-[role='alert'] {
-  margin: 0;
-  padding: 0.7rem 0.85rem;
-  border-radius: 8px;
-  background: var(--marca-clara);
-  color: var(--marca);
-  font-size: 0.88rem;
-  font-weight: 500;
-}
-
+[role='alert'],
 .aviso {
   margin: 0;
   padding: 0.7rem 0.85rem;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--credito) 10%, transparent);
+  border-radius: var(--raio-pequeno);
+  font-size: 0.86rem;
+  font-weight: 550;
+}
+
+[role='alert'] {
+  background: var(--marca-fraca);
+  color: var(--marca);
+}
+
+.aviso {
+  background: color-mix(in srgb, var(--credito) 12%, transparent);
   color: var(--credito);
-  font-size: 0.88rem;
-  font-weight: 500;
 }
 
 /* ---------- chaves e comprovante ---------- */
 
 .lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
 }
@@ -350,21 +398,33 @@ td:last-child {
 .lista li {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  border-bottom: 1px solid var(--rule);
+  gap: 0.65rem;
   padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.85rem;
+}
+
+.lista li:first-child {
+  padding-top: 0;
 }
 
 .lista li:last-child {
   border-bottom: none;
 }
 
+.lista .rotulo {
+  flex-shrink: 0;
+  background: var(--surface-sunk);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
 .lista code {
   flex: 1;
   font-family: var(--mono);
-  font-size: 0.78rem;
-  overflow-wrap: anywhere;
+  font-size: 0.76rem;
   color: var(--ink-soft);
+  overflow-wrap: anywhere;
 }
 
 .comprovante {
@@ -372,18 +432,12 @@ td:last-child {
   padding-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .comprovante strong {
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
-}
-
-p {
-  margin: 0;
-  font-size: 0.92rem;
-  color: var(--ink-soft);
 }
