@@ -1,0 +1,16 @@
+{
+  // Publica o front como site estatico no Workers (Static Assets).
+  // Sem este arquivo o `wrangler deploy` procura codigo de Worker e falha.
+  "name": "cifra",
+  "compatibility_date": "2026-08-01",
+
+  "assets": {
+    "directory": "./dist",
+
+    // O app tem navegacao no proprio front. Sem isto, abrir uma URL interna
+    // direto (ou dar F5 numa tela que nao a inicial) devolveria 404, porque
+    // nao existe arquivo naquele caminho -- toda rota tem que cair no
+    // index.html e deixar o React resolver.
+    "not_found_handling": "single-page-application"
+  }
+}
