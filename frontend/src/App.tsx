@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { aguardarServidor, type EstadoDoServidor } from './api/despertar';
 import { encerrar, observar, sessaoAtual } from './api/sessao';
-import { IconeAjustes, IconeConta, IconePix, IconeSair } from './Icones';
+import { IconeAjustes, IconeCartao, IconeConta, IconePix, IconeSair } from './Icones';
 import { Acesso } from './telas/Acesso';
 import { Ajustes } from './telas/Ajustes';
+import { CartaoVirtual } from './telas/CartaoVirtual';
 import { Painel } from './telas/Painel';
 import { Pix } from './telas/Pix';
 import './App.css';
 
-type Aba = 'conta' | 'pix' | 'ajustes';
+type Aba = 'conta' | 'pix' | 'cartao' | 'ajustes';
 
 const SECOES = [
   { id: 'conta' as const, nome: 'Conta', Icone: IconeConta },
   { id: 'pix' as const, nome: 'PIX', Icone: IconePix },
+  { id: 'cartao' as const, nome: 'Cartão', Icone: IconeCartao },
   { id: 'ajustes' as const, nome: 'Ajustes', Icone: IconeAjustes },
 ];
 
@@ -94,6 +96,7 @@ export default function App() {
       <main className="conteudo">
         {aba === 'conta' && <Painel recarregar={versao} irParaPix={() => setAba('pix')} />}
         {aba === 'pix' && <Pix aoMovimentar={() => setVersao(versao + 1)} />}
+        {aba === 'cartao' && <CartaoVirtual />}
         {aba === 'ajustes' && <Ajustes />}
       </main>
     </div>

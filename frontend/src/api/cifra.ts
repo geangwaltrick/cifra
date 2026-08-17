@@ -147,4 +147,32 @@ export function definirSenhaTransacional(senhaDeAcesso: string, senhaTransaciona
   });
 }
 
+export type Cartao = {
+  id: number;
+  numero: string;
+  cvv: string | null;
+  titular: string;
+  validade: string;
+  status: 'ATIVO' | 'BLOQUEADO' | 'CANCELADO';
+  bandeira: string;
+  utilizavel: boolean;
+  revelado: boolean;
+};
+
+/**
+ * O numero completo e o CVV so vem quando `revelar` e verdadeiro.
+ *
+ * Duas chamadas separadas de proposito: a tela abre com o cartao mascarado e
+ * o dado sensivel so entra na memoria do navegador quando alguem pede para
+ * ver, num gesto deliberado.
+ */
+export const meuCartao = (revelar = false) =>
+  requisitar<Cartao>(`/api/v1/cartoes/me?revelar=${revelar}`);
+
+export const bloquearCartao = () =>
+  requisitar<Cartao>('/api/v1/cartoes/me/bloqueio', { metodo: 'POST' });
+
+export const desbloquearCartao = () =>
+  requisitar<Cartao>('/api/v1/cartoes/me/desbloqueio', { metodo: 'POST' });
+
 export const novaChaveDeIdempotencia = () => crypto.randomUUID();
