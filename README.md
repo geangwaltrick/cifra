@@ -1,5 +1,7 @@
 # Cifra
 
+[![CI](https://github.com/geangwaltrick/cifra/actions/workflows/ci.yml/badge.svg)](https://github.com/geangwaltrick/cifra/actions/workflows/ci.yml)
+
 Um banco digital construído sobre um razão de partidas dobradas.
 
 **▶ [Abrir a demonstração](https://cifra.geangwaltrick.workers.dev)** — já vem com a conta
