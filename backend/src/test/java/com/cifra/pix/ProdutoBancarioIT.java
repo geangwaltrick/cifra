@@ -171,7 +171,10 @@ class ProdutoBancarioIT {
 		assertThat(linhas.get(0)).containsEntry("saldoApos", "875.50").containsEntry("sentido", "CREDITO");
 		assertThat(linhas.get(1)).containsEntry("saldoApos", "750.00").containsEntry("sentido", "DEBITO");
 		assertThat(linhas.get(2)).containsEntry("saldoApos", "1000.00");
-		assertThat(linhas.get(0).get("contraparte")).asString().isNotEmpty();
+		// Deposito e saque nao tem contraparte visivel: do outro lado esta a
+		// conta de liquidacao, que e encanamento do razao e nao interessa a
+		// quem le o extrato. So transferencia e PIX mostram alguem.
+		assertThat(linhas.get(0).get("contraparte")).isNull();
 	}
 
 	@Test

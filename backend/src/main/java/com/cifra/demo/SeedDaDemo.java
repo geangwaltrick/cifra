@@ -133,7 +133,47 @@ public class SeedDaDemo implements ApplicationRunner {
 		this.razao.depositar(conta, new BigDecimal("8400.00"), UUID.randomUUID().toString(), "Salario");
 
 		gerarHistorico(conta);
+		espalharNoTempo(conta);
 		logger.info("Conta de demonstracao criada: " + EMAIL);
+	}
+
+	/**
+	 * Recua as datas para os ultimos ~60 dias.
+	 *
+	 * <p>O seed grava tudo no mesmo instante, e um extrato com 40 lancamentos
+	 * no mesmo dia denuncia que foi gerado. As datas sao ajustadas depois, no
+	 * banco: o dominio nao aceita data de lancamento vinda de fora, e nem
+	 * deveria -- data de fato economico e o momento em que ele aconteceu, nao
+	 * um parametro. Aqui e manutencao de um ambiente descartavel.
+	 *
+	 * <p>A mais antiga fica no fundo (o salario), e o espacamento de 36h
+	 * distribui as 40 movimentacoes em cerca de dois meses.
+	 */
+	private void espalharNoTempo(Long conta) {
+		this.jdbc.update("""
+				with numeradas as (
+				  select t.id, row_number() over (order by t.id desc) as posicao
+				    from transacoes t
+				    join lancamentos l on l.transacao_id = t.id
+				   where l.conta_id = ?
+				   group by t.id
+				)
+				update transacoes t
+				   set criado_em    = now() - (n.posicao * interval '36 hours'),
+				       liquidado_em = now() - (n.posicao * interval '36 hours')
+				  from numeradas n
+				 where t.id = n.id
+				""", conta);
+
+		// Os dois lados da transacao andam juntos: mover so o lancamento do
+		// cliente deixaria o da liquidacao com data diferente do mesmo fato.
+		this.jdbc.update("""
+				update lancamentos l
+				   set criado_em = t.criado_em
+				  from transacoes t
+				 where t.id = l.transacao_id
+				   and t.id in (select transacao_id from lancamentos where conta_id = ?)
+				""", conta);
 	}
 
 	/** Movimentacao variada, para o extrato parecer o de alguem de verdade. */

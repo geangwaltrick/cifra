@@ -39,9 +39,17 @@ public interface ExtratoRepository extends JpaRepository<Lancamento, Long> {
 			         t.descricao as "descricao",
 			         l.valor     as "valor",
 			         sum(l.valor) over (order by l.criado_em, l.id) as "saldoApos",
-			         (select c.agencia || ' / ' || c.numero
+			         -- Quem esta do outro lado, em linguagem de gente. A conta de
+			         -- liquidacao e encanamento interno do razao: expor "0000 /
+			         -- 000000001" num extrato so confunde. Deposito e saque nao
+			         -- tem contraparte visivel -- o dinheiro veio ou foi "para fora".
+			         (select case
+			                   when c.tipo = 'LIQUIDACAO' then null
+			                   else coalesce(u.nome, c.agencia || ' / ' || c.numero)
+			                 end
 			            from lancamentos o
 			            join contas c on c.id = o.conta_id
+			            left join usuarios u on u.id = c.usuario_id
 			           where o.transacao_id = t.id
 			             and o.conta_id <> l.conta_id
 			           limit 1) as "contraparte"
