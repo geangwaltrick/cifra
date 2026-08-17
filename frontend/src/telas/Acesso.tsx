@@ -4,12 +4,22 @@ import { textoDoErro } from '../mensagens';
 
 type Modo = 'entrar' | 'cadastrar';
 
+/**
+ * Conta de demonstracao ja preenchida.
+ *
+ * Quem abre o link tem poucos segundos de paciencia, e um formulario vazio
+ * exige decidir se vale a pena criar conta antes de ver qualquer coisa. Vindo
+ * preenchido, o caminho ate o extrato e um clique. Quem quiser conta propria
+ * digita por cima.
+ */
+const DEMO = { email: 'demo@cifra.app', senha: 'demonstracao1' };
+
 export function Acesso({ aoEntrar }: { aoEntrar: () => void }) {
   const [modo, setModo] = useState<Modo>('entrar');
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [email, setEmail] = useState(DEMO.email);
+  const [senha, setSenha] = useState(DEMO.senha);
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
@@ -40,6 +50,12 @@ export function Acesso({ aoEntrar }: { aoEntrar: () => void }) {
     <form className="cartao" onSubmit={enviar}>
       <h1>Cifra</h1>
       <p className="rotulo">{modo === 'entrar' ? 'Entrar na conta' : 'Abrir conta'}</p>
+
+      {modo === 'entrar' && (
+        <p className="aviso">
+          Conta de demonstração já preenchida — é só entrar. Ou abra a sua, se preferir.
+        </p>
+      )}
 
       {modo === 'cadastrar' && (
         <>
@@ -86,7 +102,11 @@ export function Acesso({ aoEntrar }: { aoEntrar: () => void }) {
         type="button"
         className="link"
         onClick={() => {
-          setModo(modo === 'entrar' ? 'cadastrar' : 'entrar');
+          const proximo = modo === 'entrar' ? 'cadastrar' : 'entrar';
+          setModo(proximo);
+          // Ao ir para o cadastro, limpa os dados da demo; ao voltar, repoe.
+          setEmail(proximo === 'entrar' ? DEMO.email : '');
+          setSenha(proximo === 'entrar' ? DEMO.senha : '');
           setErro(null);
           setAviso(null);
         }}

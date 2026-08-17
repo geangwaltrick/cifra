@@ -2,6 +2,11 @@
 
 Um banco digital construído sobre um razão de partidas dobradas.
 
+**▶ [Abrir a demonstração](https://cifra.geangwaltrick.workers.dev)** — já vem com a conta
+`demo@cifra.app` / `demonstracao1` preenchida, é só entrar.
+
+> A primeira visita leva até um minuto: o servidor hiberna na hospedagem gratuita.
+
 > **Projeto educacional.** Não movimenta dinheiro real, não integra com o SPI do
 > Banco Central e o seed não contém nenhum dado pessoal verdadeiro.
 

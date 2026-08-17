@@ -122,7 +122,9 @@ public class SeedDaDemo implements ApplicationRunner {
 	}
 
 	private void semear() {
-		var resultado = this.cadastro.cadastrar("Ana Ribeiro (demonstracao)", CPF, EMAIL, SENHA);
+		// Nome limpo: ele vai estampado no cartao virtual, e "(demonstracao)"
+		// ali dentro entrega o truque. O aviso de demo vive na tela, nao no nome.
+		var resultado = this.cadastro.cadastrar("Ana Ribeiro", CPF, EMAIL, SENHA);
 
 		// A demo entra direto: ninguem vai conferir e-mail para testar seu portfolio.
 		Usuario usuario = this.usuarios.findById(resultado.usuario().getId()).orElseThrow();

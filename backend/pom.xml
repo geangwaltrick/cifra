@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
+		<argLine.agentes>-XX:+EnableDynamicAgentLoading</argLine.agentes>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -140,6 +141,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<argLine>${argLine.agentes}</argLine>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -148,6 +152,20 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!--
+				O Mockito se auto-anexa como agente para o inline-mock-maker, e o
+				JDK avisa que isso deixa de funcionar em versoes futuras. A flag
+				autoriza o carregamento dinamico e silencia o aviso; quando o JDK
+				remover o mecanismo, o caminho sera declarar o -javaagent.
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>${argLine.agentes}</argLine>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

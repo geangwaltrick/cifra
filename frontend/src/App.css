@@ -825,6 +825,36 @@ button.secundario:hover:not(:disabled) {
   overflow-wrap: anywhere;
 }
 
+/* ---------- medidor de limite ---------- */
+
+.medidor-topo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.valor-forte {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.medidor {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--surface-sunk);
+  overflow: hidden;
+}
+
+.medidor span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--marca) 0%, var(--marca-escura) 100%);
+  transition: width 0.35s ease;
+}
+
 /* ---------- avisos ---------- */
 
 [role='alert'],
