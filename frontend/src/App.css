@@ -753,6 +753,78 @@ button.secundario:hover:not(:disabled) {
   filter: none;
 }
 
+/* ---------- segmentos ---------- */
+
+.segmentos {
+  display: flex;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+}
+
+.segmento {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: transparent;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 550;
+  width: auto;
+}
+
+.segmento:hover:not(.ativo) {
+  background: var(--surface-sunk);
+  filter: none;
+}
+
+.segmento.ativo {
+  background: var(--marca);
+  color: #fff;
+  font-weight: 650;
+}
+
+.contador {
+  min-width: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.segmento:not(.ativo) .contador {
+  background: var(--surface-sunk);
+  color: var(--ink-faint);
+}
+
+.pastilha {
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.pastilha.ok {
+  background: color-mix(in srgb, var(--credito) 14%, transparent);
+  color: var(--credito);
+}
+
+.chave-valor {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
 /* ---------- avisos ---------- */
 
 [role='alert'],
