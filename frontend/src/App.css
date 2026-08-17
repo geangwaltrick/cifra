@@ -64,44 +64,144 @@ body {
 }
 
 #root {
-  max-width: 30rem;
-  margin: 0 auto;
-  padding: 1.25rem 1rem 3rem;
   text-align: left;
 }
 
-/* ---------- navegacao ---------- */
+/* ---------- telas sem sessao ---------- */
 
-.abas {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
+.centralizado {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 1rem;
 }
 
-.aba {
+.centralizado > * {
+  width: 100%;
+  max-width: 24rem;
+}
+
+/* ---------- estrutura da aplicacao ---------- */
+
+.aplicacao {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  min-height: 100dvh;
+}
+
+.navegacao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.5rem 0.85rem;
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+}
+
+.marca {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--marca);
+  padding: 0 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.navegacao ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.6rem;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--raio-pequeno);
   background: transparent;
   color: var(--ink-soft);
-  padding: 0.45rem 0.95rem;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 550;
   transition: background 0.15s, color 0.15s;
 }
 
-.aba:hover {
-  background: var(--surface);
+.item:hover {
+  background: var(--surface-sunk);
   color: var(--ink);
+  filter: none;
 }
 
-.aba.ativa {
-  background: var(--marca);
-  color: #fff;
+.item.ativo {
+  background: var(--marca-fraca);
+  color: var(--marca);
+  font-weight: 650;
 }
 
-.abas .link {
-  margin-left: auto;
+/* Empurra o sair para o rodape da coluna. */
+.item.sair {
+  margin-top: auto;
+}
+
+.conteudo {
+  padding: 1.75rem 1.5rem 4rem;
+  max-width: 44rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* No celular a lateral vira barra fixa embaixo, onde o polegar alcanca. */
+@media (max-width: 48rem) {
+  .aplicacao {
+    grid-template-columns: 1fr;
+  }
+
+  .navegacao {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 10;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.4rem 0.5rem;
+    border-right: none;
+    border-top: 1px solid var(--rule);
+    padding-bottom: max(0.4rem, env(safe-area-inset-bottom));
+  }
+
+  .marca {
+    display: none;
+  }
+
+  .navegacao ul {
+    flex: 1;
+    flex-direction: row;
+  }
+
+  .navegacao li {
+    flex: 1;
+  }
+
+  .item {
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.68rem;
+  }
+
+  .item.sair {
+    margin-top: 0;
+    width: auto;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.68rem;
+  }
+
+  .conteudo {
+    padding: 1rem 0.9rem 6rem;
+  }
 }
 
 /* ---------- cartoes ---------- */
