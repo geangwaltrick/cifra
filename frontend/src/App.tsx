@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { aguardarServidor, type EstadoDoServidor } from './api/despertar';
 import { encerrar, observar, sessaoAtual } from './api/sessao';
 import { Acesso } from './telas/Acesso';
 import { Ajustes } from './telas/Ajustes';
@@ -19,6 +20,31 @@ export default function App() {
   // falha. Sem observar isso, a tela seguiria mostrando dados de uma sessao
   // que ja nao existe.
   useEffect(() => observar((sessao) => setAutenticado(sessao !== null)), []);
+
+  const [servidor, setServidor] = useState<EstadoDoServidor>('verificando');
+  useEffect(() => void aguardarServidor(setServidor), []);
+
+  if (servidor === 'acordando' || servidor === 'verificando') {
+    return (
+      <div className="cartao">
+        <h1>Cifra</h1>
+        <p className="rotulo">Acordando o servidor…</p>
+        <p>
+          Esta demonstração roda em hospedagem gratuita, que suspende o serviço quando fica parado.
+          A primeira visita leva até um minuto. As próximas são imediatas.
+        </p>
+      </div>
+    );
+  }
+
+  if (servidor === 'indisponivel') {
+    return (
+      <div className="cartao">
+        <h1>Cifra</h1>
+        <p role="alert">O servidor não respondeu. Tente recarregar a página em alguns minutos.</p>
+      </div>
+    );
+  }
 
   if (!autenticado) {
     return <Acesso aoEntrar={() => setAutenticado(true)} />;
