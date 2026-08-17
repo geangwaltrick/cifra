@@ -1,172 +1,253 @@
 :root {
-  --paper: #f5f7fa;
+  --marca: #c8102e;
+  --marca-escura: #8e0b20;
+  --marca-clara: #fdecee;
+
+  --paper: #f2f3f5;
   --surface: #ffffff;
-  --ink: #131820;
-  --ink-soft: #4a5563;
-  --rule: #d8dee8;
-  --accent: #24558c;
-  --credito: #1d6b5a;
-  --debito: #a63a32;
-  color-scheme: light dark;
+  --rule: #e2e5ea;
+
+  --ink: #16181d;
+  --ink-soft: #5a616e;
+  --ink-faint: #8a92a0;
+
+  --credito: #0f7b54;
+  --debito: #16181d;
+
+  --sombra: 0 1px 2px rgba(22, 24, 29, 0.05), 0 10px 30px -22px rgba(22, 24, 29, 0.45);
+  --raio: 10px;
+
+  --sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mono: Consolas, 'Cascadia Mono', ui-monospace, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #0d1117;
-    --surface: #151b24;
-    --ink: #e4e9f0;
-    --ink-soft: #a3aebf;
-    --rule: #262f3c;
-    --accent: #78a9e0;
-    --credito: #4fbfa0;
-    --debito: #e0796e;
+    --marca: #ff5a6e;
+    --marca-escura: #7a0d1c;
+    --marca-clara: #2a1216;
+
+    --paper: #0e1014;
+    --surface: #171a20;
+    --rule: #272b33;
+
+    --ink: #e8eaee;
+    --ink-soft: #a2a9b6;
+    --ink-faint: #6f7784;
+
+    --credito: #3ec08a;
+    --debito: #e8eaee;
+
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 30px -22px rgba(0, 0, 0, 0.9);
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--sans);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
-  max-width: 46rem;
+  max-width: 40rem;
   margin: 0 auto;
-  padding: 2rem 1rem 4rem;
+  padding: 1.5rem 1rem 4rem;
 }
+
+/* ---------- estrutura ---------- */
 
 .painel {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .cartao {
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-radius: 6px;
-  padding: 1.4rem;
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
-h1,
+/* O saldo e a unica coisa que a pessoa abre o app para ver. Ganha a marca. */
+.cartao.destaque {
+  background: linear-gradient(150deg, var(--marca) 0%, var(--marca-escura) 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
+.cartao.destaque .rotulo {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.cartao.destaque input {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.cartao.destaque input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cartao.destaque button {
+  background: #fff;
+  color: var(--marca-escura);
+  font-weight: 650;
+}
+
+/* ---------- tipografia ---------- */
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--marca);
+}
+
 h2 {
   margin: 0;
-  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
 }
 
 .rotulo {
-  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
-  font-family: Consolas, ui-monospace, monospace;
+  color: var(--ink-faint);
 }
 
 .saldo {
-  font-size: 2.1rem;
-  letter-spacing: -0.03em;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-}
-
-input {
-  padding: 0.6rem 0.7rem;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 1rem;
-}
-
-button {
-  padding: 0.65rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.95rem;
-  cursor: pointer;
-  align-self: flex-start;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-[role='alert'] {
-  margin: 0;
-  color: var(--debito);
-  font-size: 0.9rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  font-variant-numeric: tabular-nums;
-}
-
-td {
-  padding: 0.55rem 0.4rem;
-  border-bottom: 1px solid var(--rule);
-}
-
-td:last-child,
-td:nth-child(3) {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.credito {
-  color: var(--credito);
-}
+/* ---------- navegacao ---------- */
 
 .abas {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .aba {
   background: transparent;
   color: var(--ink-soft);
-  border: 1px solid var(--rule);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.aba:hover {
+  background: var(--surface);
 }
 
 .aba.ativa {
-  background: var(--accent);
+  background: var(--marca);
   color: #fff;
-  border-color: var(--accent);
+  font-weight: 600;
 }
 
 .abas .link {
   margin-left: auto;
 }
 
-.link {
-  background: transparent;
-  color: var(--accent);
-  padding: 0.3rem 0;
-  font-size: 0.85rem;
-}
+/* ---------- controles ---------- */
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+input,
+select {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--marca);
+  box-shadow: 0 0 0 3px var(--marca-clara);
+}
+
+button {
+  padding: 0.7rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--marca);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: filter 0.15s;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--marca);
+  outline-offset: 2px;
+}
+
+.link {
+  background: transparent;
+  color: var(--marca);
+  padding: 0.3rem 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.link:hover:not(:disabled) {
+  text-decoration: underline;
 }
 
 .linha {
@@ -180,20 +261,83 @@ form {
   flex: 1;
 }
 
-select {
-  padding: 0.6rem 0.7rem;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 1rem;
+/* ---------- extrato ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+td {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Data em coluna estreita e fixa: o olho desce pela lateral sem tropeco. */
+td:first-child {
+  width: 4.5rem;
+  white-space: nowrap;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  padding-top: 0.95rem;
+}
+
+td:nth-child(3),
+td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+td:nth-child(3) {
+  font-weight: 600;
+}
+
+/* O saldo apos cada linha e contexto, nao o dado principal. */
+td:last-child {
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  width: 6rem;
+  padding-top: 0.95rem;
+}
+
+.credito {
+  color: var(--credito);
+}
+
+.debito {
+  color: var(--debito);
+}
+
+/* ---------- avisos ---------- */
+
+[role='alert'] {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: var(--marca-clara);
+  color: var(--marca);
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .aviso {
   margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--credito) 10%, transparent);
   color: var(--credito);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
+
+/* ---------- chaves e comprovante ---------- */
 
 .lista {
   list-style: none;
@@ -201,7 +345,6 @@ select {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .lista li {
@@ -209,28 +352,38 @@ select {
   align-items: center;
   gap: 0.7rem;
   border-bottom: 1px solid var(--rule);
-  padding-bottom: 0.5rem;
+  padding: 0.7rem 0;
+}
+
+.lista li:last-child {
+  border-bottom: none;
 }
 
 .lista code {
   flex: 1;
-  font-size: 0.82rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
   overflow-wrap: anywhere;
+  color: var(--ink-soft);
 }
 
 .comprovante {
-  border-top: 1px solid var(--rule);
-  padding-top: 0.9rem;
+  border-top: 2px solid var(--marca);
+  padding-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
 
 .comprovante strong {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
-.debito {
-  color: var(--debito);
+p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
 }

@@ -44,8 +44,8 @@ export function Painel({ recarregar }: { recarregar: number }) {
 
   return (
     <div className="painel">
-      <section className="cartao">
-        <span className="rotulo">{saldo.identificacao}</span>
+      <section className="cartao destaque">
+        <span className="rotulo">Conta corrente · {saldo.identificacao}</span>
         <strong className="saldo">{formatar(saldo.saldo)}</strong>
         <form className="linha" onSubmit={depositar}>
           <input value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" inputMode="decimal" />
