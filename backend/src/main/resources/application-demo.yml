@@ -1,0 +1,40 @@
+# Perfil da demo publicada. Ativado com SPRING_PROFILES_ACTIVE=demo.
+#
+# Tudo que e segredo vem do ambiente e nao tem valor padrao: a aplicacao
+# recusa subir sem JWT_SECRET e sem DATABASE_URL, em vez de subir insegura.
+
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      # Postgres gerenciado de camada gratuita costuma limitar conexoes.
+      # Pool grande aqui derruba o banco, nao acelera nada.
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+
+  jpa:
+    open-in-view: false
+
+cifra:
+  url-base: ${APP_URL}
+  jwt:
+    segredo: ${JWT_SECRET}
+  cors:
+    origens: ${CORS_ORIGENS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      # Continua "always" de proposito: o componente "razao" e parte do que o
+      # projeto quer mostrar. Nao ha segredo nesses detalhes.
+      show-details: always
+
+logging:
+  level:
+    root: WARN
+    com.cifra: INFO
